@@ -3,7 +3,6 @@ import Input from '@/components/Input';
 import Modal, { ModalProps } from '@/components/Modal';
 import Select from '@/components/Select';
 import SelectDriver from '@/components/Select/SelectDriver';
-import axiosInstance from '@/lib/axiosInstance';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -12,16 +11,17 @@ type LoginForm = {
   customer_name: string;
   pickup: string;
   drop_off: string;
-  driver_name: string;
+  driver_id: string;
   status?: string;
 };
 
 interface FormBookingProps extends ModalProps {
   id?: number | string | null;
+  onSuccess?: () => void;
 }
 
 const FormBooking = (props: FormBookingProps) => {
-  const { id, onClose, ...rest } = props;
+  const { id, onClose, onSuccess, ...rest } = props;
   const {
     register,
     handleSubmit,
@@ -30,18 +30,24 @@ const FormBooking = (props: FormBookingProps) => {
     formState: { errors },
   } = useForm<LoginForm>();
 
+  const handleClose = () => {
+    onClose?.();
+    reset();
+  };
+
   const mutation = useMutation({
     mutationFn: (params) =>
       id ? BookingApi.update({ id, params }) : BookingApi.create({ params }),
-    onSuccess: (data) => {
-      console.log('Tạo booking thành công:', data);
+    onSuccess: () => {
+      handleClose();
+      onSuccess?.();
     },
     onError: (error) => {
       console.error('Lỗi khi tạo booking:', error);
     },
   });
 
-  const { data, isLoading: loadingDetail } = useQuery({
+  const { data, isFetching, refetch } = useQuery({
     queryKey: ['get-booking-detail', id],
     queryFn: () => BookingApi.getDetail({ id }),
     enabled: !!id,
@@ -52,26 +58,23 @@ const FormBooking = (props: FormBookingProps) => {
     mutation.mutate(values);
   };
 
-  const handleClose = () => {
-    onClose && onClose();
-    reset();
-  };
-
   useEffect(() => {
     if (data && id) {
-      console.log('data', data);
-
       reset({
         customer_name: data?.customer_name,
         pickup: data?.pickup,
         drop_off: data?.drop_off,
-        driver_name: data?.driver_name,
+        driver_id: String(data?.driver_id),
         status: data?.status,
       });
     }
   }, [data, id]);
 
-  const loading = (!!id && loadingDetail) || mutation.isPending;
+  const loading = mutation.isPending || (isFetching && !!id);
+
+  useEffect(() => {
+    refetch();
+  }, [id]);
 
   return (
     <Modal
@@ -142,7 +145,7 @@ const FormBooking = (props: FormBookingProps) => {
         </div>
         <div className="mb-4">
           <label
-            htmlFor="drop_off"
+            htmlFor="driver_id"
             className="block text-sm font-medium text-gray-600"
           >
             Driver name
@@ -157,7 +160,7 @@ const FormBooking = (props: FormBookingProps) => {
         {id && (
           <div className="mb-4">
             <label
-              htmlFor="drop_off"
+              htmlFor="status"
               className="block text-sm font-medium text-gray-600"
             >
               Status

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { bookingMockData } from '../route';
+import { driverMockData } from '../../driver/route';
 
-// Lấy booking theo ID
 export async function GET(_: Request, { params }: { params: { id: number } }) {
   const booking = bookingMockData.find((u) => u.id == params.id);
   if (!booking)
@@ -9,21 +9,24 @@ export async function GET(_: Request, { params }: { params: { id: number } }) {
   return NextResponse.json(booking);
 }
 
-// Cập nhật booking theo ID
 export async function PUT(
   req: Request,
   { params }: { params: { id: number } },
 ) {
-  const index = bookingMockData.findIndex((u) => u.id === params.id);
+  const index = bookingMockData.findIndex((u) => u.id == params.id);
   if (index === -1)
     return NextResponse.json({ error: 'booking not found' }, { status: 404 });
 
   const body = await req.json();
-  bookingMockData[index] = { ...bookingMockData[index], ...body };
+
+  const driver_name = driverMockData.find(
+    (driver) => driver.id == body.driver_id,
+  )?.full_name;
+
+  bookingMockData[index] = { ...bookingMockData[index], ...body, driver_name };
   return NextResponse.json(bookingMockData[index]);
 }
 
-// Xóa booking theo ID
 export async function DELETE(
   _: Request,
   { params }: { params: { id: number } },

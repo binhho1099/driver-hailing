@@ -35,46 +35,44 @@ const TableWithCheckbox = ({ columns, data }: TableProps) => {
   };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full border border-gray-300 rounded-lg">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="p-3 border">
+    <table className="min-w-full border border-gray-300 rounded-lg">
+      <thead>
+        <tr className="bg-gray-100">
+          <th className="p-3 border">
+            <input
+              type="checkbox"
+              className="w-4 h-4"
+              checked={isAllSelected}
+              onChange={handleSelectAll}
+            />
+          </th>
+          {columns.map((col) => (
+            <th key={col.key} className="p-3 border text-left">
+              {col.title}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row) => (
+          <tr key={row.id} className="border hover:bg-gray-50">
+            <td className="p-3 border text-center">
               <input
                 type="checkbox"
                 className="w-4 h-4"
-                checked={isAllSelected}
-                onChange={handleSelectAll}
+                checked={selectedRows.includes(row.id)}
+                onChange={() => handleSelectRow(row.id)}
               />
-            </th>
+            </td>
             {columns.map((col) => (
-              <th key={col.key} className="p-3 border text-left">
-                {col.title}
-              </th>
+              <td key={col.key} className="p-3 border">
+                {col.render ? col.render(row[col.key], row) : row[col.key]}
+              </td>
             ))}
           </tr>
-        </thead>
-        <tbody>
-          {data.map((row) => (
-            <tr key={row.id} className="border hover:bg-gray-50">
-              <td className="p-3 border text-center">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4"
-                  checked={selectedRows.includes(row.id)}
-                  onChange={() => handleSelectRow(row.id)}
-                />
-              </td>
-              {columns.map((col) => (
-                <td key={col.key} className="p-3 border">
-                  {col.render ? col.render(row[col.key], row) : row[col.key]}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </tbody>
+    </table>
   );
 };
 

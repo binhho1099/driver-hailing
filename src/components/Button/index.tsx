@@ -19,7 +19,7 @@ const Button = (props: ButtonProps) => {
 
   return (
     <button
-      className={`w-full rounded-lg  px-4 py-2 text-white font-semibold focus:ring-2 ${colorClassName[color]} ${className}`}
+      className={`rounded-lg  px-4 py-2 text-white font-semibold focus:ring-2 ${colorClassName[color]} ${className}`}
       {...restProps}
     >
       {children}

@@ -13,7 +13,7 @@ interface BookingDetailProps extends ModalProps {
 const BookingDetail = (props: BookingDetailProps) => {
   const { id, ...rest } = props;
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isFetching, refetch } = useQuery({
     queryKey: ['get-booking-detail', id],
     queryFn: async () => {
       const res = await axiosInstance.get(
@@ -52,7 +52,7 @@ const BookingDetail = (props: BookingDetailProps) => {
     {
       key: '5',
       title: 'Status',
-      value: (
+      value: data?.status && (
         <Tag color={STATUS_COLOR[data?.status]}>
           {STATUS_TEXT[data?.status]}
         </Tag>
@@ -63,7 +63,7 @@ const BookingDetail = (props: BookingDetailProps) => {
   return (
     <Modal
       title="Booking Detail"
-      loading={isLoading}
+      loading={isFetching}
       okButtonClassname="hidden"
       {...rest}
     >

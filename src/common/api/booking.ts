@@ -6,7 +6,7 @@ const BookingEndpoint = `${endpoint}/booking`;
 const BookingApi = {
   getList: async ({ params }) =>
     await axiosInstance
-      .get(`${BookingEndpoint}`, params)
+      .get(`${BookingEndpoint}`, { params })
       .then((res) => res.data),
   getDetail: async ({ id }) =>
     await axiosInstance.get(`${BookingEndpoint}/${id}`).then((res) => res.data),
